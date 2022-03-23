@@ -1,5 +1,6 @@
 
-from flask import Flask, render_template
+from random import choice
+from flask import Flask, render_template, request
 import tmdb_client
 
 app = Flask(__name__)
@@ -14,10 +15,19 @@ def homepage():
 
 @app.route('/')
 def homepage():
+    list_types = [{'id' : 'popular', 'label': 'Najczęściej oglądane'},
+                    {'id' :'now_playing', 'label' : 'W kinach'},  
+                    {'id' : 'top_rated', 'label' : 'Najwyżej oceniane'}, 
+                    {'id' : 'upcoming', 'label' : 'Premiery'}]
+    selected_list = request.args.get('list_type', 'popular')
+    print(f"Selected list: {selected_list}")
+    if selected_list != 'now_playing' and selected_list != 'popular' and selected_list != 'top_rated' and selected_list != 'upcoming':
+        selected_list = 'popular'
+    print(f"Selected list: {selected_list}")
+
     how_many_movies = 8
-    movies = tmdb_client.get_movies(how_many_movies)
-    print(movies)
-    return render_template("homepage.html", movies=movies)
+    movies = tmdb_client.get_movies(how_many_movies, list_type=selected_list)
+    return render_template("homepage.html", movies=movies, current_list=selected_list, list_types=list_types)
 
 
 @app.context_processor
@@ -34,7 +44,10 @@ def movie_details(movie_id):
     how_many = 4
     cast = tmdb_client.get_single_movie_cast(movie_id)[:how_many]
     print(cast)
-    return render_template("movie_details.html", movie=details, cast=cast)
+    movie_images = tmdb_client.get_movie_images(movie_id)
+    selected_backdrop = choice(movie_images['backdrops'])
+    print(selected_backdrop)
+    return render_template("movie_details.html", movie=details, cast=cast, selected_backdrop=selected_backdrop)
 
 
 @app.context_processor
