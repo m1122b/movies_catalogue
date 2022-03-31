@@ -2,6 +2,9 @@
 import sys
 sys.path.append('../')
 
+
+import pytest
+from main import app
 import tmdb_client
 from unittest.mock import Mock
 
@@ -61,4 +64,30 @@ def test_get_single_movie_cast():
     single_movie = tmdb_client.get_single_movie_cast(movie_id)
     assert single_movie is not None
 
+
+def test_homepage(monkeypatch):
+    api_mock = Mock(return_value={'results': ['m1', 'm2', 'm3']})
+    monkeypatch.setattr("tmdb_client.call_tmdb_api", api_mock)
+    
+    with app.test_client() as client:
+        r = client.get('/')
+        assert r.status_code == 200
+        api_mock.assert_called_once_with('movie/popular')
+
+
+
+@pytest.mark.parametrize('n, re', ( 
+    ('popular', 200),
+    ('now_playing', 200),
+    ('top_rated', 200),
+    ('upcoming', 200)
+))
+def test_homepage_with_param(monkeypatch, n, re):
+    api_mock = Mock(return_value={'results': ['m1', 'm2', 'm3']})
+    monkeypatch.setattr("tmdb_client.call_tmdb_api", api_mock)
+    
+    with app.test_client() as client:
+        r = client.get(f"/?list_type={n}")
+        assert r.status_code == re
+        api_mock.assert_called_once_with(f"movie/{n}")
 

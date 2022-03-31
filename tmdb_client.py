@@ -69,6 +69,12 @@ if __name__ == '__main__':
 
     print(get_movies())
 
+    print("/")
+    print("/")
+
+
+    print(call_tmdb_api('movie/popular'))
+
 
 
 

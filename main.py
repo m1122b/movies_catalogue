@@ -27,6 +27,7 @@ def homepage():
 
     how_many_movies = 8
     movies = tmdb_client.get_movies(how_many_movies, list_type=selected_list)
+    print(movies)
     return render_template("homepage.html", movies=movies, current_list=selected_list, list_types=list_types)
 
 
