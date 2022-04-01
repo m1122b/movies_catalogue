@@ -1,6 +1,7 @@
 
 from random import choices, choice
 import requests
+import os
 
 
 PAYLOAD = {'api_key': 'de232542034b3603e0d8b59a43a78c8f'}
